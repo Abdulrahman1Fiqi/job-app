@@ -113,6 +113,16 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+
+        'turso' => [
+        'driver' => 'sqlite',
+        'url' => env('TURSO_DB_URL'),
+        'access_token' => env('TURSO_DB_ACCESS_TOKEN'),
+        'read_your_writes' => true,
+        'early_connect' => true,
+        ],
+
+
     ],
 
     /*
