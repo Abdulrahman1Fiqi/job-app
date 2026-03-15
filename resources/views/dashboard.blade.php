@@ -36,8 +36,8 @@
 
         <!-- Filters -->
         <div class="flex space-x-2">
-            <a href="{{ route('dashboard',['filter'=>'Full-Time','search'=>request('search')]) }}"
-            class="bg-indigo-500 text-white p-2 rounded-lg">Full-Time</a>
+            <a href="{{ route('dashboard',['filter'=>'Full-time','search'=>request('search')]) }}"
+            class="bg-indigo-500 text-white p-2 rounded-lg">Full-time</a>
             <a href="{{ route('dashboard',['filter'=>'Remote','search'=>request('search')]) }}"
             class="bg-indigo-500 text-white p-2 rounded-lg">Remote</a>
             <a href="{{ route('dashboard',['filter'=>'Hybrid','search'=>request('search')]) }}"
