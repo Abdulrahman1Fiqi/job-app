@@ -20,5 +20,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(base_path('../job-backoffice/database/migrations'));
+
+        Event::listen(Login::class, function ($event) {
+            $event->user->update(['last_login_at' => now()]);
+        });
+        
     }
 }
