@@ -191,56 +191,63 @@ class ResumeAnalysisService
 
     
 
-    private function extractTextFromPdf(string $fileUrl):string{
-        // Reading the file from the cloud to local disk storage in temp file
-        $tempFile = tempnam( sys_get_temp_dir(),'resume');
+    private function extractTextFromPdf(string $fileUrl): string {
+    $tempFile = tempnam(sys_get_temp_dir(), 'resume');
 
-        $filePath = parse_url($fileUrl, PHP_URL_PATH);
-        if (!$filePath) {
-            throw new \Exception('Invalid file URL');
-        }
-
-        $filename = basename($filePath);
-
-        $storagePath = "resumes/{$filename}";
-
-        if (!Storage::disk('cloud')->exists($storagePath)) {
-            throw new \Exception('File not found');
-        }
-
-        $pdfContent = Storage::disk('cloud')->get($storagePath);
-        if (!$pdfContent) {
-            throw new \Exception('Failed to read file');
-        }
-
-        file_put_contents($tempFile,$pdfContent);
-
-        // Check if pdf-to-text is installed
-        $pdfToTextPath = ['C:/poppler-25.12.0/Library/bin/pdftotext.exe'];
-        $pdfToTextAvailable = false;
-
-        foreach($pdfToTextPath as $path){
-            if(file_exists($path)){
-                $pdfToTextAvailable = true;
-                break;
-            }
-        }
-
-        if(!$pdfToTextAvailable){
-            throw new \Exception('pdf-to-text is not installed.');
-        }
-
-        //Extract text from the pdf file
-        $instance = new Pdf('C:/poppler-25.12.0/Library/bin/pdftotext.exe');
-        $instance->setPdf($tempFile);
-        $text = $instance->text();
-
-        // Clean up the temp file
-        unlink($tempFile);
-
-        return $text;
-
+    $filePath = parse_url($fileUrl, PHP_URL_PATH);
+    if (!$filePath) {
+        throw new \Exception('Invalid file URL');
     }
+
+    $filename = basename($filePath);
+    $storagePath = "resumes/{$filename}";
+
+    if (!Storage::disk('cloud')->exists($storagePath)) {
+        throw new \Exception('File not found in storage: ' . $storagePath);
+    }
+
+    $pdfContent = Storage::disk('cloud')->get($storagePath);
+    if (!$pdfContent) {
+        throw new \Exception('Failed to read file');
+    }
+
+    file_put_contents($tempFile, $pdfContent);
+
+    // Auto-detect pdftotext on both Windows and Linux
+    $pdfToTextPath = null;
+
+    $windowsPaths = [
+        'C:/poppler-25.12.0/Library/bin/pdftotext.exe',
+        'C:/poppler/bin/pdftotext.exe',
+    ];
+
+    foreach ($windowsPaths as $path) {
+        if (file_exists($path)) {
+            $pdfToTextPath = $path;
+            break;
+        }
+    }
+
+    // On Linux (Laravel Cloud), use system pdftotext
+    if (!$pdfToTextPath) {
+        $linuxPath = trim(shell_exec('which pdftotext') ?? '');
+        if (!empty($linuxPath) && file_exists($linuxPath)) {
+            $pdfToTextPath = $linuxPath;
+        }
+    }
+
+    if (!$pdfToTextPath) {
+        throw new \Exception('pdftotext is not installed on this server.');
+    }
+
+    $instance = new Pdf($pdfToTextPath);
+    $instance->setPdf($tempFile);
+    $text = $instance->text();
+
+    unlink($tempFile);
+
+    return $text;
+}
 
 
 }
