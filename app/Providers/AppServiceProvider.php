@@ -24,10 +24,8 @@ class AppServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(base_path('../job-backoffice/database/migrations'));
 
        Event::listen(Login::class, function ($event) {
-        \Illuminate\Support\Facades\Log::info('Login event fired for user: ' . $event->user->id);
-        $event->user->update(['last_login_at' => now()]);
-        \Illuminate\Support\Facades\Log::info('last_login_at updated to: ' . $event->user->last_login_at);
-    });
+            $event->user->update(['last_login_at' => now()]);
+        });
         
     }
 }
