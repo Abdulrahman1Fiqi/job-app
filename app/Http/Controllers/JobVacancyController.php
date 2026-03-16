@@ -27,6 +27,7 @@ class JobVacancyController extends Controller
 
     public function show(string $id){
         $jobVacancy = JobVacancy::findOrFail($id);
+         $jobVacancy->increment('viewCount');
         return view('job-vacancies.show',compact('jobVacancy'));
     }
     public function apply(string $id){
